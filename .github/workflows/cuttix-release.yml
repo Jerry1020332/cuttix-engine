@@ -55,6 +55,11 @@ jobs:
             compgen -G "$want" > /dev/null || { echo "::error::missing $want"; exit 1; }
           done
           sha256sum -- *.dmg *.msi *.exe > SHA256SUMS
-          gh release create "$TAG" *.dmg *.msi *.exe SHA256SUMS \
-            -R "$GITHUB_REPOSITORY" --title "Cuttix Engine $TAG" \
-            --notes "Cuttix Engine $TAG. Source: this repository at $TAG (AGPL-3.0-or-later). Based on Concat; not affiliated with the Concat project."
+          # A release made early by hand (some platforms first) is added to.
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release upload "$TAG" *.dmg *.msi *.exe SHA256SUMS -R "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" *.dmg *.msi *.exe SHA256SUMS \
+              -R "$GITHUB_REPOSITORY" --title "Cuttix Engine $TAG" \
+              --notes "Cuttix Engine $TAG. Source: this repository at $TAG (AGPL-3.0-or-later). Based on Concat; not affiliated with the Concat project."
+          fi
