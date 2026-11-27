@@ -95,9 +95,9 @@ pub fn shown<'a>(
 }
 
 /// The official site, which the guides and the developer docs are pages of.
-const SITE: &str = "https://github.com/CHANGE-ME/cuttix-engine";
+const SITE: &str = "https://concat.standalones.org";
 /// The repository: the code, the issues, the releases.
-pub const REPOSITORY: &str = "https://github.com/CHANGE-ME/cuttix-engine";
+pub const REPOSITORY: &str = "https://github.com/Jerry1020332/cuttix-engine";
 
 /// Where each of the launch screen's links goes, by the name the screen
 /// sends. One table, so a moved page is one line here. Every address is a

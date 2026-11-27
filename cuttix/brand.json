@@ -2,7 +2,7 @@
   "name": "Cuttix",
   "nameZh": "剪刻",
   "identifier": "app.cuttix.editor",
-  "site": "https://github.com/CHANGE-ME/cuttix-engine",
-  "source": "https://github.com/CHANGE-ME/cuttix-engine",
+  "site": "https://concat.standalones.org",
+  "source": "https://github.com/Jerry1020332/cuttix-engine",
   "basedOn": "Cuttix is based on Concat (https://github.com/jub0t/Concat), free software under AGPL-3.0-or-later. Cuttix is not affiliated with or endorsed by the Concat project."
 }
