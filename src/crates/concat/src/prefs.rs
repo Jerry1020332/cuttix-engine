@@ -374,11 +374,14 @@ pub struct ServerPrefs {
 
 impl Default for ServerPrefs {
     fn default() -> Self {
+        // Company build (Concat Assistant): the chat window drives the open
+        // project, so both switches start on. The server listens on
+        // loopback only and the window mints a 128-bit token for it.
         ServerPrefs {
-            enabled: false,
+            enabled: true,
             listen: DEFAULT_LISTEN.to_owned(),
             token: String::new(),
-            live: false,
+            live: true,
         }
     }
 }

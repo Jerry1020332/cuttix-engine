@@ -1,0 +1,60 @@
+name: Cuttix engine release
+
+# Builds the Cuttix engine (this fork) for every desktop platform with the
+# upstream build-app.yml, unchanged, and publishes the packages as a GitHub
+# release. The Cuttix app repository downloads the macOS .dmg and Windows
+# .msi from that release and wraps them with the AI assistant.
+#
+# Unlike upstream's release.yml it does not build or sign the phone apps,
+# and it does not require the tag to match src/Cargo.toml: a Cuttix engine
+# tag is upstream's version plus a suffix, e.g. v0.2.12-cuttix.1.
+#
+# The sources of each release are this repository at its tag: the
+# complete corresponding source the AGPL asks for.
+
+on:
+  push:
+    tags: ["v*-cuttix.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: An existing tag to build, e.g. v0.2.12-cuttix.1
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-app.yml
+    with:
+      ref: ${{ inputs.tag || github.ref_name }}
+    secrets: inherit
+
+  publish:
+    needs: build
+    # Linux bundles are not shipped, so a Linux-only failure does not block
+    # the release; the desktop packages must all be there (checked below).
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: bundles
+          pattern: Concat-*
+          merge-multiple: true
+      - name: Check and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          cd bundles
+          ls -l
+          for want in '*-macos-arm64.dmg' '*-macos-x86_64.dmg' '*-windows-x86_64.msi' '*-windows-x86_64-setup.exe'; do
+            compgen -G "$want" > /dev/null || { echo "::error::missing $want"; exit 1; }
+          done
+          sha256sum -- *.dmg *.msi *.exe > SHA256SUMS
+          gh release create "$TAG" *.dmg *.msi *.exe SHA256SUMS \
+            -R "$GITHUB_REPOSITORY" --title "Cuttix Engine $TAG" \
+            --notes "Cuttix Engine $TAG. Source: this repository at $TAG (AGPL-3.0-or-later). Based on Concat; not affiliated with the Concat project."

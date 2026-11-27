@@ -217,6 +217,17 @@ impl OpenProjects {
             .remove(&key);
     }
 
+    /// The folders `holder` has open, as their keys (canonical paths).
+    pub fn held_by(&self, holder: Holder) -> Vec<String> {
+        self.0
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .iter()
+            .filter(|(_, claim)| claim.holder == holder)
+            .map(|(key, _)| key.clone())
+            .collect()
+    }
+
     /// Who has `path` open, if anyone.
     pub fn holder(&self, path: &str) -> Option<Holder> {
         let key = key_of(path);
@@ -586,6 +597,15 @@ impl Api {
         }
     }
 
+    /// The project the window has open, while it lets scripts edit it.
+    fn on_screen(&self) -> Option<String> {
+        let window = self.window.as_ref()?;
+        if !window.live() {
+            return None;
+        }
+        self.open.held_by(Holder::Window).into_iter().next()
+    }
+
     /// [`Request::Version`].
     pub fn version(&self) -> VersionInfo {
         VersionInfo {
@@ -599,6 +619,7 @@ impl Api {
                 }
                 capabilities
             },
+            on_screen: self.on_screen(),
         }
     }
 

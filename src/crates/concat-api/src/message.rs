@@ -359,6 +359,12 @@ pub struct VersionInfo {
     /// the list is not served, whatever the build; a name added later is
     /// not a version bump, so a caller ignores names it does not know.
     pub capabilities: Vec<String>,
+    /// The project folder open in the window, when the window lets scripts
+    /// edit it (`project.live`): the one to pass as `path` to edit what the
+    /// person sees. Absent with no window, the switch off, or no project
+    /// open on screen.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub on_screen: Option<String>,
 }
 
 /// The app's directories, as paths.
